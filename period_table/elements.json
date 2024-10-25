@@ -1,0 +1,49 @@
+[
+    {
+        "name": "Hydrogen",
+        "symbol": "H",
+        "atomicNumber": 1,
+        "atomicMass": 1.008,
+        "electronConfiguration": "1s¹",
+        "group": "1 (Alkali Metals)",
+        "period": 1,
+        "state": "Gas",
+        "uses": "Fuel cells, rocket fuel, and in water.",
+        "mcq": [
+            {
+                "question": "What is the atomic number of Hydrogen?",
+                "options": ["1", "2", "3", "4"],
+                "correctAnswer": "1"
+            },
+            {
+                "question": "What is the state of Hydrogen at room temperature?",
+                "options": ["Solid", "Liquid", "Gas", "Plasma"],
+                "correctAnswer": "Gas"
+            }
+        ]
+    },
+    {
+        "name": "Helium",
+        "symbol": "He",
+        "atomicNumber": 2,
+        "atomicMass": 4.0026,
+        "electronConfiguration": "1s²",
+        "group": "18 (Noble Gases)",
+        "period": 1,
+        "state": "Gas",
+        "uses": "Balloons, cryogenics, and as a cooling medium.",
+        "mcq": [
+            {
+                "question": "What is the atomic number of Helium?",
+                "options": ["1", "2", "3", "4"],
+                "correctAnswer": "2"
+            },
+            {
+                "question": "What group does Helium belong to?",
+                "options": ["Alkali Metals", "Noble Gases", "Halogens", "Metalloids"],
+                "correctAnswer": "Noble Gases"
+            }
+        ]
+    }
+    
+]
