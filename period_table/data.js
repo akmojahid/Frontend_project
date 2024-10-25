@@ -281,4 +281,6 @@ const alkaliMetalsQuiz = [
   }
 ];
 
-const questions = alkaliMetalsQuiz;
+//const questions = alkaliMetalsQuiz.sort(() => Math.random() - 0.5);
+const questions =[alkaliMetalsQuiz[9], alkaliMetalsQuiz[0]]
+console.log(questions)
