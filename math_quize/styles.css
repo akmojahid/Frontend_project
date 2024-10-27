@@ -79,6 +79,7 @@ button.option:hover {
 }
 
 #next-question {
+    width: 100%;
     display: none;
     padding: 10px 20px;
     font-size: 16px;
