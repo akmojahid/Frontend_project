@@ -283,3 +283,5 @@ const alkaliMetalsQuiz = [
 
 const questions = alkaliMetalsQuiz.sort(() => Math.random() - 0.5);
 //const questions =[alkaliMetalsQuiz[9], alkaliMetalsQuiz[0]]
+let n=5
+if (n%2) {console.log('true') } else console.log('false')
