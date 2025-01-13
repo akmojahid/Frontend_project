@@ -10,8 +10,11 @@
 
 <body>
   <div class="container">
+    <div class="time">
+      0
+    </div>
     <div class="result">
-      <div class="right"> 👍 
+      <div class="right"> 👍
         <p>0</p>
       </div>
       <div class="wrong"> 👎
@@ -33,6 +36,18 @@
   </div>
 
   <script src="script.js"></script>
+  <script>
+    let t = document.querySelector('.time')
+    let num = 50
+
+    function timeIn() {
+      num += 1
+      t.innerHTML = num
+
+      if (t.innerHTML.includes('60')) alert('over')
+    }
+    setInterval(timeIn, 1000)
+  </script>
 </body>
 
 </html>
