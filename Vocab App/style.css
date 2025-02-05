@@ -1,0 +1,70 @@
+/* Custom styles beyond Tailwind */
+.modal {
+    transition: opacity 0.3s ease-in-out;
+}
+
+.modal.hidden {
+    display: none;
+    opacity: 0;
+}
+
+.card {
+    transition: transform 0.3s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+/* Progress bar styles */
+.progress-bar {
+    height: 4px;
+    background-color: #e2e8f0;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background-color: #3b82f6;
+    transition: width 0.3s ease-in-out;
+}
+
+/* Flashcard animation */
+@keyframes flipIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.flashcard-animate {
+    animation: flipIn 0.3s ease-out forwards;
+}
+
+/* Word styling */
+.word-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #2d3748;
+}
+
+.meaning-section {
+    padding: 0.5rem;
+    margin: 0.5rem 0;
+    background-color: #f7fafc;
+    border-radius: 0.375rem;
+}
+
+/* Example sentences */
+.example {
+    font-style: italic;
+    color: #4a5568;
+    padding: 0.5rem;
+    border-left: 2px solid #3b82f6;
+    margin: 0.5rem 0;
+}
