@@ -65,10 +65,12 @@ function createWordListCard(list) {
             <div class="card-body">
                 <h5 class="card-title">${list.listName}</h5>
                 <p class="card-text">Cards: ${list.cards.length}</p>
-                <button class="btn btn-primary start-btn">Start</button>
+                <button class="btn btn-primary start-btn">Start Learning</button>
             </div>
         </div>
     `;
+    
+  col.querySelector('.card').addEventListener('click', () => showPrev(list.cards));
 
   col.querySelector('.start-btn').addEventListener('click', () => showFlashcards(list));
   return col;
@@ -265,5 +267,43 @@ function showToast(message, type = 'success') {
   });
 }
 
+function showPrev(cards) {
+      const modalBody = document.querySelector('#previewModal .modal-body');
+      modalBody.innerHTML = ''; // Clear previous content
 
-// ... (rest of the code remains the same)
+      cards.forEach(card => {
+        const cardPreview = document.createElement('div');
+        cardPreview.classList.add('card-preview');
+
+        const wordTitle = document.createElement('h4');
+        wordTitle.textContent = card.word;
+
+        const banglaMeaning = document.createElement('p');
+        banglaMeaning.innerHTML = `<strong>Bangla Meaning:</strong> ${card.banglaMeaning.join(", ")}`;
+
+        const englishMeaning = document.createElement('p');
+        englishMeaning.innerHTML = `<strong>English Meaning:</strong> ${card.englishMeaning}`;
+
+        const similarWordsContainer = document.createElement('p');
+        similarWordsContainer.innerHTML = `<strong>Similar Words:</strong>`;
+        card.similarWords.forEach(word => {
+          const tag = document.createElement('span');
+          tag.classList.add('similar-word');
+          tag.textContent = word;
+          similarWordsContainer.appendChild(tag);
+        });
+
+        cardPreview.appendChild(wordTitle);
+        cardPreview.appendChild(banglaMeaning);
+        cardPreview.appendChild(englishMeaning);
+        cardPreview.appendChild(similarWordsContainer);
+
+        modalBody.appendChild(cardPreview);
+      });
+
+      // Show the modal
+      const previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
+      previewModal.show();
+      
+    }
+   
