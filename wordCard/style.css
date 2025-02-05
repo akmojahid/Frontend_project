@@ -1,0 +1,26 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f8f9fa;
+}
+
+#home-page {
+  text-align: center;
+}
+
+.card {
+  margin-bottom: 1rem;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.card:hover {
+  transform: scale(1.05);
+}
+
+.modal-body {
+  text-align: left;
+}
+
+.progress {
+  margin-top: 1rem;
+}

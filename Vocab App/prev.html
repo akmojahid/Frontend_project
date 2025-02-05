@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Markdown Preview</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 20px auto;
+      line-height: 1.6;
+      padding: 20px
+    }
+    pre {
+      background: #f4f4f4;
+      padding: 10px;
+      overflow-x: auto;
+    }
+    code {
+      background: #f4f4f4;
+      padding: 2px 4px;
+    }
+  </style>
+</head>
+<body>
+  <div id="preview"></div>
+
+  <script>
+    // Fetch README.md and render it
+    fetch('readme.md')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to fetch README.md');
+        }
+        return response.text();
+      })
+      .then(markdown => {
+        document.getElementById('preview').innerHTML = marked.parse(markdown);
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        document.getElementById('preview').textContent = 'Error loading README.md';
+      });
+  </script>
+</body>
+</html>

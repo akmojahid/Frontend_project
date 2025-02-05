@@ -1,171 +1,269 @@
-// Main JavaScript functionality
-document.addEventListener('DOMContentLoaded', () => {
-    // Initialize app
-    initializeApp();
+// Initialize Bootstrap components
+let flashcardModal;
+let carousel;
+let currentWordList;
+let currentCardIndex;
 
-    // Event Listeners
-    document.getElementById('addCategoryBtn').addEventListener('click', showAddCategoryModal);
-    document.getElementById('closeCardBtn').addEventListener('click', hideFlashcard);
-    document.getElementById('knowBtn').addEventListener('click', () => markCard('known'));
-    document.getElementById('dontKnowBtn').addEventListener('click', () => markCard('unknown'));
-    document.getElementById('confirmAddCategory').addEventListener('click', handleAddCategory);
-    document.getElementById('cancelAddCategory').addEventListener('click', hideAddCategoryModal);
+document.addEventListener('DOMContentLoaded', () => {
+  initializeApp();
+  setupEventListeners();
 });
 
-// Initialize the application
 function initializeApp() {
-    loadFromLocalStorage();
-    renderCategories();
-    updateProgressTracking();
+  flashcardModal = new bootstrap.Modal(document.getElementById('flashcardModal'));
+  carousel = new bootstrap.Carousel(document.getElementById('flashcardCarousel'), {
+    interval: false,
+    wrap: false
+  });
+
+  loadFromLocalStorage();
+  renderWordLists();
 }
 
-// Local Storage Functions
+function setupEventListeners() {
+  // Search functionality
+  document.getElementById('searchInput').addEventListener('input', handleSearch);
+
+  // Add new word list
+  document.getElementById('saveNewCard').addEventListener('click', handleNewWordList);
+
+  // Known/Unknown buttons
+  document.getElementById('knownBtn').addEventListener('click', () => markCard('Known'));
+  document.getElementById('unknownBtn').addEventListener('click', () => markCard('Unknown'));
+
+  // Carousel slide event
+  document.getElementById('flashcardCarousel').addEventListener('slide.bs.carousel', handleSlide);
+}
+
 function loadFromLocalStorage() {
-    const savedData = localStorage.getItem('flashcardsData');
-    if (savedData) {
-        Object.assign(flashcards, JSON.parse(savedData));
-    }
+  const savedData = localStorage.getItem('wordListData');
+  if (savedData) {
+    wordList.length = 0;
+    wordList.push(...JSON.parse(savedData));
+  }
 }
 
 function saveToLocalStorage() {
-    localStorage.setItem('flashcardsData', JSON.stringify(flashcards));
+  localStorage.setItem('wordListData', JSON.stringify(wordList));
 }
 
-// Render Functions
-function renderCategories() {
-    const categoriesList = document.getElementById('categoriesList');
-    categoriesList.innerHTML = '';
+function renderWordLists() {
+  const container = document.getElementById('wordLists');
+  container.innerHTML = '';
 
-    flashcards.categories.forEach(category => {
-        const categoryElement = createCategoryElement(category);
-        categoriesList.appendChild(categoryElement);
-    });
+  wordList.forEach(list => {
+    const card = createWordListCard(list);
+    container.appendChild(card);
+  });
 }
 
-function createCategoryElement(category) {
-    const div = document.createElement('div');
-    div.className = 'card bg-white p-4 rounded-lg shadow-md hover:shadow-lg cursor-pointer';
-    div.innerHTML = `
-        <h3 class="text-xl font-bold text-gray-800">${category.categoryName}</h3>
-        <p class="text-gray-600 mt-2">${category.cards.length} cards</p>
-        <div class="progress-bar mt-4">
-            <div class="progress-bar-fill" style="width: ${calculateProgress(category)}%"></div>
+function createWordListCard(list) {
+  const col = document.createElement('div');
+  col.className = 'col';
+  col.innerHTML = `
+        <div class="card word-list-card h-100">
+            <div class="card-body">
+                <h5 class="card-title">${list.listName}</h5>
+                <p class="card-text">Cards: ${list.cards.length}</p>
+                <button class="btn btn-primary start-btn">Start</button>
+            </div>
         </div>
     `;
-    div.addEventListener('click', () => showFlashcard(category));
-    return div;
+
+  col.querySelector('.start-btn').addEventListener('click', () => showFlashcards(list));
+  return col;
 }
 
-// Flashcard Functions
-function showFlashcard(category) {
-    const modal = document.getElementById('flashcardModal');
-    const cardCategory = document.getElementById('cardCategory');
-    const cardContent = document.getElementById('cardContent');
-    
-    const randomCard = category.cards[Math.floor(Math.random() * category.cards.length)];
-    
-    cardCategory.textContent = category.categoryName;
-    cardContent.innerHTML = `
-        <div class="flashcard-animate">
-            <h3 class="word-title">${randomCard.word}</h3>
-            <div class="meaning-section">
-                <p class="font-bold text-gray-700">Bengali Meaning:</p>
-                <p>${randomCard.banglaMeaning.join(', ')}</p>
-            </div>
-            <div class="meaning-section">
-                <p class="font-bold text-gray-700">English Meaning:</p>
-                <p>${randomCard.englishMeaning}</p>
-            </div>
-            <div class="examples">
-                ${randomCard.examples.map(example => `
-                    <p class="example">${example}</p>
+function showFlashcards(list) {
+  currentWordList = list;
+  currentCardIndex = 0;
+
+  const carouselInner = document.querySelector('.carousel-inner');
+  carouselInner.innerHTML = '';
+
+  list.cards.forEach((card, index) => {
+    const carouselItem = createCarouselItem(card, index === 0);
+    carouselInner.appendChild(carouselItem);
+  });
+
+  document.getElementById('flashcardTitle').textContent = list.listName;
+  flashcardModal.show();
+}
+
+function createCarouselItem(card, isActive) {
+  const div = document.createElement('div');
+  div.className = `carousel-item ${isActive ? 'active' : ''}`;
+  div.innerHTML = `
+        <div class="word-title text-center">${card.word}</div>
+        <div class="meaning-section">
+            <h6>Bengali Meaning:</h6>
+            <p>${card.banglaMeaning.join(', ')}</p>
+        </div>
+        <div class="meaning-section">
+            <h6>English Meaning:</h6>
+            <p>${card.englishMeaning}</p>
+        </div>
+        <div class="meaning-section">
+            <h6>Examples:</h6>
+            <ul class="example-list">
+                ${card.examples.map(example => `
+                    <li class="example-item">${example}</li>
+                `).join('')}
+            </ul>
+        </div>
+        <div class="meaning-section">
+            <h6>Similar Words:</h6>
+            <div class="similar-words-container">
+                ${card.similarWords.map(word => `
+                    <span class="similar-word-tag">${word}</span>
                 `).join('')}
             </div>
-            <div class="meaning-section">
-                <p class="font-bold text-gray-700">Similar Words:</p>
-                <p>${randomCard.similarWords.join(', ')}</p>
-            </div>
         </div>
     `;
-    
-    modal.classList.remove('hidden');
-    currentCard = randomCard;
-    currentCategory = category;
+  return div;
 }
 
-function hideFlashcard() {
-    document.getElementById('flashcardModal').classList.add('hidden');
+function handleSearch(event) {
+  const searchTerm = event.target.value.toLowerCase();
+  const cards = document.querySelectorAll('.word-list-card');
+
+  cards.forEach(card => {
+    const title = card.querySelector('.card-title').textContent.toLowerCase();
+    card.closest('.col').style.display =
+      title.includes(searchTerm) ? 'block' : 'none';
+  });
 }
 
-// Category Management
-function showAddCategoryModal() {
-    document.getElementById('addCategoryModal').classList.remove('hidden');
-}
+function handleNewWordList() {
+  const input = document.getElementById('newCardInput');
+  const title = document.getElementById('title');
 
-function hideAddCategoryModal() {
-    document.getElementById('addCategoryModal').classList.add('hidden');
-}
-
-function handleAddCategory() {
-    const input = document.getElementById('categoryInput');
-    try {
-        const newCategory = JSON.parse(input.value);
-        flashcards.categories.push(newCategory);
-        saveToLocalStorage();
-        renderCategories();
-        hideAddCategoryModal();
-        input.value = '';
-    } catch (error) {
-        alert('Invalid category format. Please check your JSON syntax.');
+  try {
+    let newObj = {
+      wordId: wordList.length + 1,
+      listName: title.value,
     }
-}
-
-// Progress Tracking
-function calculateProgress(category) {
-    if (!category.cards.length) return 0;
-    const reviewed = category.cards.filter(card => card.lastReviewed).length;
-    return (reviewed / category.cards.length) * 100;
-}
-
-function updateProgressTracking() {
-    flashcards.progressTracking.totalReviewed = flashcards.categories.reduce((total, category) => {
-        return total + category.cards.filter(card => card.lastReviewed).length;
-    }, 0);
+    let data = JSON.parse(input.value)
+    newObj.cards = data
+    
+    wordList.push(newObj)
     saveToLocalStorage();
+    renderWordLists();
+
+    console.log('list added')
+
+    showToast('New List aded 🎉', 'success')
+    input.value = '';
+    title.value = ''
+    bootstrap.Modal.getInstance(document.getElementById('addCardModal')).hide();
+    
+  } catch (error) {
+    console.log(error)
+    alert('Invalid word list format. Please check your JSON syntax.');
+  }
 }
 
 function markCard(status) {
-    if (!currentCard || !currentCategory) return;
-    
+  const currentCard = currentWordList.cards[currentCardIndex];
+  const targetList = wordList.find(list => list.listName === status);
+
+  // Remove from current list
+  currentWordList.cards = currentWordList.cards.filter(card =>
+    card.cardId !== currentCard.cardId
+  );
+
+  // Add to target list if not already present
+  if (!targetList.cards.some(card => card.cardId === currentCard.cardId)) {
     currentCard.lastReviewed = new Date().toISOString().split('T')[0];
-    
-    if (status === 'known') {
-        moveCardToCategory(currentCard, 'I know');
-    } else {
-        moveCardToCategory(currentCard, "I don't know");
-    }
-    
-    updateProgressTracking();
-    hideFlashcard();
-    renderCategories();
+    targetList.cards.push(currentCard);
+  }
+
+  saveToLocalStorage();
+  renderWordLists();
+
+  // Move to next card or close if last card
+  if (currentCardIndex < currentWordList.cards.length - 1) {
+    carousel.next();
+  } else {
+    flashcardModal.hide();
+  }
 }
 
-function moveCardToCategory(card, targetCategoryName) {
-    const targetCategory = flashcards.categories.find(cat => cat.categoryName === targetCategoryName);
-    if (!targetCategory) return;
-    
-    // Remove card from current category
-    const sourceCategory = flashcards.categories.find(cat => 
-        cat.cards.some(c => c.cardId === card.cardId)
-    );
-    if (sourceCategory) {
-        sourceCategory.cards = sourceCategory.cards.filter(c => c.cardId !== card.cardId);
-    }
-    
-    // Add to target category if not already present
-    if (!targetCategory.cards.some(c => c.cardId === card.cardId)) {
-        targetCategory.cards.push(card);
-    }
-    
-    saveToLocalStorage();
+function handleSlide(event) {
+  currentCardIndex = event.to;
 }
+
+// ... (previous code remains the same until setupEventListeners)
+
+function setupEventListeners() {
+  // Search functionality
+  document.getElementById('searchInput').addEventListener('input', handleSearch);
+
+  // Add new word list
+  document.getElementById('saveNewCard').addEventListener('click', handleNewWordList);
+
+  // Known/Unknown buttons
+  document.getElementById('knownBtn').addEventListener('click', () => {
+    markCard('Known');
+    showToast('Card marked as Known!', 'success');
+  });
+  document.getElementById('unknownBtn').addEventListener('click', () => {
+    markCard('Unknown');
+    showToast('Card marked as Unknown!', 'danger');
+  });
+
+  // Carousel slide event
+  document.getElementById('flashcardCarousel').addEventListener('slide.bs.carousel', handleSlide);
+}
+
+// Add this function to create and show toast notifications
+function showToast(message, type = 'success') {
+  // Remove existing toast container if any
+  const existingToast = document.querySelector('.toast-container');
+  if (existingToast) {
+    existingToast.remove();
+  }
+
+  // Create toast container
+  const toastContainer = document.createElement('div');
+  toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+
+  // Create toast element
+  const toastEl = document.createElement('div');
+  toastEl.className = `toast align-items-center text-white bg-${type} border-0`;
+  toastEl.setAttribute('role', 'alert');
+  toastEl.setAttribute('aria-live', 'assertive');
+  toastEl.setAttribute('aria-atomic', 'true');
+
+  // Create toast content
+  toastEl.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">
+                ${message}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    `;
+
+  // Add toast to container
+  toastContainer.appendChild(toastEl);
+
+  // Add container to document
+  document.body.appendChild(toastContainer);
+
+  // Initialize and show toast
+  const toast = new bootstrap.Toast(toastEl, {
+    animation: true,
+    autohide: true,
+    delay: 2000
+  });
+  toast.show();
+
+  // Remove toast container after it's hidden
+  toastEl.addEventListener('hidden.bs.toast', () => {
+    toastContainer.remove();
+  });
+}
+
+
+// ... (rest of the code remains the same)
